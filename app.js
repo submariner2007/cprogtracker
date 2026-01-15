@@ -73,14 +73,14 @@ function showTooltip(x, y, text){
 }
 function hideTooltip(){ tooltipEl.style.display = "none"; }
 
-function renderMonths(year) {
+function renderMonths(y) {
   const monthsEl = document.getElementById("months");
-  if (!monthsEl) return; // IMPORTANT: don't crash if missing
+  if (!monthsEl) return;
 
   monthsEl.innerHTML = "";
 
-  const start = new Date(year, 0, 1);
-  const startDow = start.getDay(); // 0=Sun..6=Sat
+  const start = new Date(y, 0, 1);
+  const startDow = start.getDay(); // 0=Sun
   const names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
   const weekIndex = (date) => {
@@ -89,7 +89,7 @@ function renderMonths(year) {
   };
 
   for (let m = 0; m < 12; m++) {
-    const d = new Date(year, m, 1);
+    const d = new Date(y, m, 1);
     const col = weekIndex(d);
 
     const label = document.createElement("div");
@@ -99,6 +99,7 @@ function renderMonths(year) {
     monthsEl.appendChild(label);
   }
 }
+
 
 
 
