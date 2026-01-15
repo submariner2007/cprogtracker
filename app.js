@@ -75,34 +75,37 @@ function hideTooltip(){ tooltipEl.style.display = "none"; }
 
 function renderMonths(year) {
   const monthsEl = document.getElementById("months");
+  if (!monthsEl) return; // IMPORTANT: don't crash if missing
+
   monthsEl.innerHTML = "";
 
   const start = new Date(year, 0, 1);
-  const startDow = start.getDay(); // 0=Sun
-  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const startDow = start.getDay(); // 0=Sun..6=Sat
+  const names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-  function weekIndex(date) {
+  const weekIndex = (date) => {
     const diffDays = Math.floor((date - start) / 86400000);
     return Math.floor((startDow + diffDays) / 7);
-  }
+  };
 
   for (let m = 0; m < 12; m++) {
     const d = new Date(year, m, 1);
     const col = weekIndex(d);
 
     const label = document.createElement("div");
-    label.textContent = monthNames[m];
-    label.style.gridColumnStart = col + 1;
+    label.textContent = names[m];
+    label.style.gridColumnStart = String(col + 1);
 
     monthsEl.appendChild(label);
   }
 }
 
 
+
 function render() {
+  const year = Number(yearEl.value);
   renderMonths(year);
 
-  const year = Number(yearEl.value);
   gridEl.innerHTML = "";
 
   const start = new Date(year, 0, 1);
