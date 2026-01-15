@@ -6,12 +6,16 @@ import {
   getFirestore, doc, getDoc, setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
+
 // 1) Paste your Firebase web config here (Project settings → Your apps → Web app)
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyBa4_J53ZdOu2l5PXa7wcHO79Z97cPyNcA",
+  authDomain: "cprog-logger.firebaseapp.com",
+  projectId: "cprog-logger",
+  storageBucket: "cprog-logger.firebasestorage.app",
+  messagingSenderId: "372704708217",
+  appId: "1:372704708217:web:379fd9376132c9f48076a8",
+  measurementId: "G-69B2QVMZY9"
 };
 
 const app = initializeApp(firebaseConfig);
