@@ -1,1 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>2026 cp</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 24px; }
+    .top { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom: 12px; }
+    button { padding: 8px 10px; cursor:pointer; }
+    #grid { display:grid; grid-auto-flow: column; grid-auto-columns: 12px; grid-template-rows: repeat(7, 12px); gap: 3px; padding: 10px; border: 1px solid #ddd; width: fit-content; }
+    .cell { width:12px; height:12px; border-radius:3px; background:#eee; border:1px solid rgba(0,0,0,.06); cursor:pointer; }
+    .cell:hover { outline: 2px solid rgba(0,0,0,.15); outline-offset: 1px; }
+    #tooltip { position: fixed; display:none; pointer-events:none; background: rgba(0,0,0,.9); color: white; padding: 6px 8px; border-radius: 8px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <button id="login">Login with GitHub</button>
+    <button id="logout" style="display:none;">Logout</button>
+    <span id="status">Not signed in.</span>
+  </div>
+
+  <div>
+    Year: <input id="year" type="number" min="1970" max="2100" value="2026" />
+  </div>
+
+  <p>abc</p>
+
+  <div id="grid" aria-label="Heatmap grid"></div>
+  <div id="tooltip"></div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
 
