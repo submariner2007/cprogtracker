@@ -13,22 +13,37 @@
     .cell:hover { outline: 2px solid rgba(0,0,0,.15); outline-offset: 1px; }
     #tooltip { position: fixed; display:none; pointer-events:none; background: rgba(0,0,0,.9); color: white; padding: 6px 8px; border-radius: 8px; font-size: 12px; }
 
-    #months {
+    /* Match your grid's padding exactly */
+#months {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 12px;
   gap: 3px;
-  margin-bottom: 6px;
+
+  /* IMPORTANT: match #grid’s padding */
+  padding: 10px;             /* use the same padding as #grid */
+  padding-bottom: 0;         /* month row doesn't need bottom padding */
+  margin: 0;                 /* avoid extra offset */
+  width: fit-content;
+
   font-size: 11px;
   color: #6b7280;
+
+  /* If your grid scrolls horizontally, the month row should too */
+  overflow: hidden;
 }
 
-/* each month label is a tiny block so it doesn't force wrapping */
 #months div {
-  padding-left: 2px;
+  /* Anchor text to the LEFT edge of its column */
+  justify-self: start;
+  align-self: end;
+  transform: translateX(0); /* explicit; avoids odd centering */
   white-space: nowrap;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
 }
+
 
   </style>
 </head>
