@@ -7,7 +7,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 
-// 1) Paste your Firebase web config here (Project settings → Your apps → Web app)
+// firebase web config (project settings > your app > web app)
 const firebaseConfig = {
   apiKey: "AIzaSyBa4_J53ZdOu2l5PXa7wcHO79Z97cPyNcA",
   authDomain: "cprog-logger.firebaseapp.com",
