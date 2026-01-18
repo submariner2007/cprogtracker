@@ -53,6 +53,19 @@
 .cell:hover { outline: 2px solid rgba(0,0,0,.15); outline-offset: 1px; }
 .cell.today { outline: 2px solid rgba(37, 99, 235, 0.6); outline-offset: 1px; }
 
+    #tooltip{
+  position: fixed;
+  z-index: 9999;
+  display: none;
+  padding: 6px 8px;
+  font-size: 12px;
+  background: rgba(17, 24, 39, 0.95);
+  color: white;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+
 
   </style>
 </head>
@@ -72,13 +85,13 @@
 
 
   <h3>Programming</h3>
-<div id="months-prog"></div>
-<div id="grid-prog" aria-label="Programming heatmap grid"></div>
-  <div id="tooltip"></div>
+<div id="months-prog" class="months"></div>
+<div id="grid-prog" class="grid" aria-label="Programming heatmap grid"></div>
+
 
 <h3>Interview</h3>
-<div id="months-interview"></div>
-<div id="grid-interview" aria-label="Interview practice heatmap grid"></div>
+<div id="months-interview" class="months"></div>
+<div id="grid-interview" class="grid" aria-label="Interview practice heatmap grid"></div>
   <div id="tooltip"></div>
 
   <script type="module" src="./app.js"></script>
