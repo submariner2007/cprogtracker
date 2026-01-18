@@ -35,13 +35,14 @@ let uid = null;
 
 // Data model: one doc per user:
 // /users/{uid} -> { heatmap: { "2026-01-01": 2.5, ... } }
-let heatmap = {}; // dateStr -> hours
+let heatmapProg = {};  // dateStr -> hours
+let heatmapInterview = {}; // dateStr -> hours
+
 
 function pad2(n){ return String(n).padStart(2, "0"); }
 function isoDate(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
 
-function colorFor(hours){
-  // Customize colors however you want
+function colorForProg(hours){
   if (hours <= 0) return "#ebedf0";
   if (hours < 1) return "#c6e48b";
   if (hours < 3) return "#7bc96f";
@@ -49,21 +50,34 @@ function colorFor(hours){
   return "#196127";
 }
 
+function colorForInterview(hours){
+  if (hours <= 0) return "#ebedf0";
+  if (hours < 1) return "#d8b4fe";
+  if (hours < 3) return "#a78bfa";
+  if (hours < 6) return "#7c3aed";
+  return "#5b21b6";
+}
+
+
 async function loadFromCloud() {
   const ref = doc(db, "users", uid);
   const snap = await getDoc(ref);
   if (snap.exists()) {
-    heatmap = snap.data().heatmap || {};
+    const data = snap.data() || {};
+    heatmapProg = data.heatmapProg || {};
+    heatmapInterview = data.heatmapInterview || {};
   } else {
-    heatmap = {};
-    await setDoc(ref, { heatmap }, { merge: true });
+    heatmapProg = {};
+    heatmapOther = {};
+    await setDoc(ref, { heatmapProg, heatmapInterview }, { merge: true });
   }
 }
 
 async function saveToCloud() {
   const ref = doc(db, "users", uid);
-  await setDoc(ref, { heatmap }, { merge: true });
+  await setDoc(ref, { heatmapProg, heatmapInterview }, { merge: true });
 }
+
 
 function showTooltip(x, y, text){
   tooltipEl.textContent = text;
@@ -73,16 +87,15 @@ function showTooltip(x, y, text){
 }
 function hideTooltip(){ tooltipEl.style.display = "none"; }
 
-function renderMonths(y) {
-  const monthsEl = document.getElementById("months");
+function renderMonths(y, monthsElId) {
+  const monthsEl = document.getElementById(monthsElId);
   if (!monthsEl) return;
 
   monthsEl.innerHTML = "";
 
   const names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
   const startUTC = Date.UTC(y, 0, 1);
-  const startDow = new Date(startUTC).getUTCDay(); // 0=Sun..6=Sat
+  const startDow = new Date(startUTC).getUTCDay();
 
   const weekIndexUTC = (yy, mm, dd) => {
     const t = Date.UTC(yy, mm, dd);
@@ -93,13 +106,12 @@ function renderMonths(y) {
   let lastCol = -1;
   for (let m = 0; m < 12; m++) {
     const col = weekIndexUTC(y, m, 1);
-    if (col === lastCol) continue; // skip if it would overlap in same week column
+    if (col === lastCol) continue;
     lastCol = col;
 
     const label = document.createElement("div");
     label.textContent = names[m];
     label.style.gridColumnStart = String(col + 1);
-
     monthsEl.appendChild(label);
   }
 }
@@ -109,38 +121,36 @@ function renderMonths(y) {
 
 
 
-function render() {
-  const year = Number(yearEl.value);
-  renderMonths(year);
 
-  gridEl.innerHTML = "";
+function renderGrid({ year, gridElId, monthsElId, dataMap, colorFn, label }) {
+  renderMonths(year, monthsElId);
+
+  const grid = document.getElementById(gridElId);
+  grid.innerHTML = "";
 
   const start = new Date(year, 0, 1);
   const end = new Date(year, 11, 31);
+  const todayStr = isoDate(new Date());
 
-  // align like GitHub: columns are weeks, rows are day-of-week (Sun..Sat)
-  const leading = start.getDay(); // 0..6
+  const leading = start.getDay();
   for (let i = 0; i < leading; i++) {
     const blank = document.createElement("div");
     blank.className = "cell";
     blank.style.visibility = "hidden";
-    gridEl.appendChild(blank);
+    grid.appendChild(blank);
   }
 
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const dateStr = isoDate(d);
-    const hours = Number(heatmap[dateStr] ?? 0);
+    const hours = Number(dataMap[dateStr] ?? 0);
 
     const cell = document.createElement("div");
     cell.className = "cell";
-    cell.style.background = colorFor(hours);
-
-    if (dateStr === todayStr) {
-  cell.classList.add("today");
-}
+    cell.style.background = colorFn(hours);
+    if (dateStr === todayStr) cell.classList.add("today");
 
     cell.addEventListener("mouseenter", (ev) => {
-      showTooltip(ev.clientX, ev.clientY, `${dateStr}: ${hours} hour${hours === 1 ? "" : "s"}`);
+      showTooltip(ev.clientX, ev.clientY, `${label} — ${dateStr}: ${hours} hour${hours === 1 ? "" : "s"}`);
     });
     cell.addEventListener("mousemove", (ev) => {
       if (tooltipEl.style.display === "block") {
@@ -152,21 +162,44 @@ function render() {
 
     cell.addEventListener("click", async () => {
       if (!uid) { alert("Login first."); return; }
-      const raw = prompt(`Hours for ${dateStr}:`, String(hours));
+      const raw = prompt(`${label} hours for ${dateStr}:`, String(hours));
       if (raw === null) return;
       const n = Number(raw);
-      if (!Number.isFinite(n) || n < 0) { alert("value must >-1"); return; }
+      if (!Number.isFinite(n) || n < 0) { alert("value must be >= 0"); return; }
 
-      if (n === 0) delete heatmap[dateStr];
-      else heatmap[dateStr] = n;
+      if (n === 0) delete dataMap[dateStr];
+      else dataMap[dateStr] = n;
 
       await saveToCloud();
-      render();
+      render(); // rerender both
     });
 
-    gridEl.appendChild(cell);
+    grid.appendChild(cell);
   }
 }
+
+function render() {
+  const year = Number(yearEl.value);
+
+  renderGrid({
+    year,
+    gridElId: "grid-prog",
+    monthsElId: "months-prog",
+    dataMap: heatmapProg,
+    colorFn: colorForProg,
+    label: "Programming"
+  });
+
+  renderGrid({
+    year,
+    gridElId: "grid-interview",
+    monthsElId: "months-interview",
+    dataMap: heatmapInterview,
+    colorFn: colorForInterview,
+    label: "Interview"
+  });
+}
+
 
 // Auth buttons
 loginBtn.onclick = async () => {
